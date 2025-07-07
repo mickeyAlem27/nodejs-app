@@ -10,9 +10,8 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(helmet()); // Secure HTTP headers
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: true,
   credentials: true
 }));
 app.use(express.json());

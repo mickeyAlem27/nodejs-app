@@ -12,7 +12,7 @@ jobs:
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker Image
-        run: docker build -t mickey761/node .
+        run: docker build -t mickey761/node.
       - name: Publish Image to Docker Hub
         run: docker push mickey761/node:latest
 
@@ -25,4 +25,4 @@ jobs:
       - name: Delete old container (ignore error if not exists)
         run: docker rm -f node-container || true
       - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name node-container -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" mickey761/node:latest
+        run: docker run -d -p 4000:4000 --name node-container -e MONGO_URI="${{ secrets.MONGO_URI }}" mickey761/node:latest
