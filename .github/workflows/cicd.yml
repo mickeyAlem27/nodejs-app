@@ -5,7 +5,7 @@ on:
       - mern-ec2-docker-ssl
 jobs:
   build:
-    runs-on: ubuntu-latest  # Fixed from Amazon Linux-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -15,6 +15,7 @@ jobs:
         run: docker build -t mickey761/node .
       - name: Publish Image to Docker Hub
         run: docker push mickey761/node:latest
+
   deploy:
     needs: build
     runs-on: self-hosted
