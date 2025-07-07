@@ -15,7 +15,6 @@ jobs:
         run: docker build -t mickey761/node .
       - name: Publish Image to Docker Hub
         run: docker push mickey761/node:latest
-
   deploy:
     needs: build
     runs-on: self-hosted
