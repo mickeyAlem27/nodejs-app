@@ -15,15 +15,16 @@ jobs:
         run: docker build -t mickey761/node .
       - name: Publish Image to Docker Hub
         run: docker push mickey761/node:latest
-  deploy:
+
+        deploy:
     needs: build
     runs-on: self-hosted
     steps:
       - name: Pull image from Docker Hub
         run: docker pull mickey761/node:latest
-      - name: Delete old container
-        run: docker rm -f node-container 
+      - name: Delete old container (ignore error if not exists)
+        run: docker rm -f node-container || true
       - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name node-container -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' mickey761/node
+        run: docker run -d -p 4000:4000 --name node-container -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" mickey761/node:latest
 
-       
+        
