@@ -14,17 +14,22 @@ jobs:
       - name: Build Docker Image
         run: docker build -t mickey761/nodejs-app .
       - name: Publish Image to Docker Hub
-        run: docker push mickey761/nodejs-app:latest
-
+        run: docker push mickey761/nodejs-app:latest || { echo "Failed to push image"; exit 1; }
 
   deploy:
-    needs: build
-    runs-on: self-hosted
-    steps:
-      - name: Pull image from Docker hub
-        run: docker pull mickey761/nodejs-app:latest
-      - name: Delete old container (ignore error if not exists)
-        run: docker rm -f nodejs-app-container || true
-      - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_URI='${{ secrets.MONGO_URI }}' mickey761/nodejs-app:latest
-        
+  needs: build
+  runs-on: self-hosted
+  steps:
+    - name: Check Docker Status
+      run: docker info || { echo "Docker not running"; exit 1; }
+    - name: Pull Image from Docker Hub
+      run: docker pull mickey761/nodejs-app:latest || { echo "Failed to pull image"; exit 1; }
+    - name: Delete Old Container
+      run: docker rm -f nodejs-app-container || true
+    - name: Run Docker Container
+      run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_URI='${{ secrets.MONGO_URI }}' mickey761/nodejs-app:latest || { echo "Failed to run container"; exit 1; }
+    - name: Check Container Status
+      run: |
+        sleep 5
+        docker ps
+        docker logs nodejs-app-container
