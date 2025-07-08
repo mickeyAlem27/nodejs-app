@@ -26,5 +26,5 @@ jobs:
       - name: Delete old container (ignore error if not exists)
         run: docker rm -f nodejs-app-container || true
       - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_URI='${{ secrets.MONGO_URI }}' mickey761/nodejs-app:latest
+        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_PASSWORD='mikialem' mickey761/nodejs-app:latest
         
