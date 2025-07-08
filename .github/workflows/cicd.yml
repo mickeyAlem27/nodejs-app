@@ -1,8 +1,10 @@
 name: Deploy Node Application
+
 on:
   push:
     branches:
       - mern-ec2-docker-ssl
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,7 +12,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        run: docker login -u 'mickey761' -p '404040@Mikialem'
       - name: Build Docker Image
         run: docker build -t mickey761/nodejs-app .
       - name: Publish Image to Docker Hub

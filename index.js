@@ -1,41 +1,46 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const cookieParser = require('cookie-parser');
-const authRoutes = require('./routes/auth');
-require('dotenv').config();
+import express from 'express';
+import bodyParser from 'body-parser';
 
+import db from "./mongoC.js";
+
+const port = 4000;
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-app.use(express.json());
-app.use(cookieParser());
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // Limit to 100 requests
-}));
+app.use((_req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+  
+    next();
+  });
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Parses the text as url encoded data
+app.use(bodyParser.urlencoded({ extended: true }));
+ 
+// Parses the text as json
+app.use(bodyParser.json());
 
-// Routes
-app.use('/api/auth', authRoutes);
+app.get('/', (req, res) => {
+    res.send('Hello World, from express');
+})
 
-// Error Handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong' });
+app.post('/addUser',async (req, res) => {
+    let collection = await db.collection("users");
+    let newDocument = req.body;
+    newDocument.date = new Date();
+    let result = await collection.insertOne(newDocument);
+    console.log("rreq"+req.body);
+    res.send(result).status(204);
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.get('/getUsers', async(req, res) => {
+    let collection = await db.collection("users");
+    let results = await collection.find({})
+      
+      .toArray();
+    res.send(results).status(200);
+});
+
+app.listen(port, function () {
+    console.log("Server is listening at port:" + port);
+});
+ 
