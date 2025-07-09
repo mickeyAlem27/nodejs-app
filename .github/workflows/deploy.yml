@@ -12,15 +12,12 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        run: docker login -u 'mickey761' -p '404040@Mikialem'
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app .
+        run: docker build -t mickey761/nodejs-app .
       - name: Publish Image to Docker Hub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
+        run: docker push mickey761/nodejs-app:latest
 
-
-
-        
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -28,25 +25,32 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: AKIA3UJALQEEQ74MBZXX
+          aws-secret-access-key: 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
           aws-region: us-east-1
 
       - name: Connect to EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: 54.225.54.52
           username: ubuntu
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            # Replace this entire block with the actual contents of your my-key-pair.pem file
+            # For example:
+            # MIIEpAIBAAKCAQEAv1jX9...
+            # ... (full key content) ...
+            # ...qW5x8w==
+            -----END RSA PRIVATE KEY-----
           script: |
             # Stop existing container if running
             docker stop nodejs-app || true
             docker rm nodejs-app || true
             
             # Pull and run new container
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
+            docker pull mickey761/nodejs-app:latest
             docker run -d \
               --name nodejs-app \
               -p 4000:4000 \
-              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
-            ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
+              -e MONGO_URI="mongodb+srv://mikiyasalemayehualemu:mikialem@cluster0.bvlgxqq.mongodb.net/Ato?retryWrites=true&w=majority&appName=Cluster0" \
+            mickey761/nodejs-app:latest
