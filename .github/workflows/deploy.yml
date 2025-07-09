@@ -35,13 +35,7 @@ jobs:
           host: 54.225.54.52
           username: ubuntu
           key: |
-            -----BEGIN RSA PRIVATE KEY-----
-            # Replace this entire block with the actual contents of your my-key-pair.pem file
-            # For example:
-            # MIIEpAIBAAKCAQEAv1jX9...
-            # ... (full key content) ...
-            # ...qW5x8w==
-            -----END RSA PRIVATE KEY-----
+            [PASTE THE FULL CONTENTS OF my-key-pair.pem HERE, INCLUDING -----BEGIN RSA PRIVATE KEY----- AND -----END RSA PRIVATE KEY-----]
           script: |
             # Stop existing container if running
             docker stop nodejs-app || true
