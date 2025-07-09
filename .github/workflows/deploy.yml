@@ -1,0 +1,76 @@
+name: Deploy Node Application
+
+on:
+  push:
+    branches:
+      - mern-ec2-docker-ssl
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        run: docker login -u 'mickey761' -p '404040@Mikialem'
+      - name: Build Docker Image
+        run: docker build -t mickey761/nodejs-app .
+      - name: Publish Image to Docker Hub
+        run: docker push mickey761/nodejs-app:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: AKIA3UJALQEEQ74MBZXX
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      - name: Connect to EC2 instance
+        uses: appleboy/ssh-action@master
+        with:
+          host: 54.225.54.52
+          username: ubuntu
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEpAIBAAKCAQEA0W2yI37CDtkl2RyWcka4TcTxCoe1St1HAFea1xzRNK/9rkQv
+            dE8VtOYLVxg+N5ECXoQZ0H2AmaxyXUQ8+P8utj7v+6BsGiXv7s1TXiqCFKGofJqt
+            jQNqing0jHt3RRutNys6DlatoeXagymT+iaT7Co232l8tSoVzwBw258tpARZLn5R
+            bsB9TrcRGhmdBNE+4ptdvI5vrSRJp5CB7ONvKQ5aPUgE80HTKgBA412ENxFFj5U4
+            DKRrRO8TlAv8u9Lwf9k1CjoR4JG59TMeY9eT+s+4B2NNBQMBGNQTehARCoJQ7pYx
+            m3MEMWmx5DM5s+GTERGJGnGKyr/m+76gugKlWwIDAQABAoIBAHUXofvaiWGH43Nq
+            Wmt2QuGodSRwD9rVsTbtxDL1d7q/k1R15xpehUJpRHnjohWrS+nQbiZ1pQtGsYKX
+            /ocxFcrrkX3cidRs1aNsxWnm1mf2op9YVCR9fnoBD1BkT6EiAkzQLFuL9vSH8Q5Y
+            ltXL7/Sg/aEX95PK/fqIwpDohLooeCF7QDDlUDUBiYGrCR3BtLd0Jzhbh4+EcUdG
+            tVDcSFnx6eVyjcAAN8maiod546lQFDWMRzJRoKIqLpM49zHCXt2l3RUy+U+dUSMP
+            aCJjQ6y4JhIQZ6WDOQ+H/EmlV5kB6quu47dBn4tl75jeLGVJLtgYZR1ka4VThT8M
+            8cG8sRECgYEA/sY3uPxpV59BUj5DY52hMS6zprFJmKvpT4FiFq5GD0u1wdz5Onxt
+            CXnuYI1fUTV5N0wSQrgNtRfFgveBVlB4EmI43SdquUbBq6meWd/0TqwboxfWPZlh
+            TYY9iAZjmdjYBaE2CFZ3JwCm6jW/ZzukiefCOCSaLXsLqCpaPcVVjWcCgYEA0m+h
+            QT1p/TedcHm+CAt2hCh2Th3ugERQnaZM2RqGc0HzONGujb9Z+vU765WGgyIY2TmE
+            dlNIkVhOLtw74ZN9EbtkC2d0oSw0Lm46/xsGOxff3iVfMFPX7UMS/WePyMQiS/1e
+            fRe60/J5AmeOCmvnNmWqKRUvoDO5CL0BD4EIO+0CgYEAr0N0udEKNrjbmtQyT6j0
+            Zn0WISn80wYQLh13eNrSX1tZ4c89tDo8WDSFA+69D4SVqrCuLy+mXlnICdxyIQqi
+            TyM6swiWpnZCbPD2eiVST3yeVofjXeTRxx793UFn60H8+YJ5RSsWNMKCEMSAs2eY
+            PTYtqamkVn06+6iHA89olykCgYACbxQYYxN0wE3r3RybjzZhtO4ZXTNC/IdKK4A8
+            Cph/gMXFZHd2YD40Lt3wjZwurBhJeubTT4dJVxIgbJ+srj4GFHrFvv6UVqSL3O6F
+            wNRDnrUSJrCBKJcYwWvYznfVRJ947YdIPxwEE4vewT/dUv4rnOVo8DvKyI5dUYJP
+            oZhsyQKBgQCUdUeczKCJF9+PmQpUa4lFQGFTMeN/Tf4TxmSElV11KNRR2j5Z5RjB
+            1l6r0PU64D/g8aAmvs71wrmX7rbaoVdMfJn/Zqrch0HQSG4bnCcXumiZvT7BeqQT
+            A8B/acRYCSPXOr/kULBgqLvbHcz8NrnYblA2M5vtZPq6Mmo98YvlqA==
+            -----END RSA PRIVATE KEY-----
+          script: |
+            # Stop existing container if running
+            docker stop nodejs-app || true
+            docker rm nodejs-app || true
+            
+            # Pull and run new container
+            docker pull mickey761/nodejs-app:latest
+            docker run -d \
+              --name nodejs-app \
+              -p 4000:4000 \
+              -e MONGO_URI="mongodb+srv://mikiyasalemayehualemu:mikialem@cluster0.bvlgxqq.mongodb.net/Ato?retryWrites=true&w=majority&appName=Cluster0" \
+            mickey761/nodejs-app:latest
