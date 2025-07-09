@@ -12,11 +12,11 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
       - name: Login to Docker Hub
-        run: docker login -u 'mickey761' -p '404040@Mikialem'
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
       - name: Build Docker Image
-        run: docker build -t mickey761/nodejs-app .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app .
       - name: Publish Image to Docker Hub
-        run: docker push mickey761/nodejs-app:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
 
   deploy:
     needs: build
@@ -25,14 +25,14 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          aws-region: us-east-1  # Updated to Northern Virginia region
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Connect to EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }} 
+          host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
@@ -41,9 +41,9 @@ jobs:
             docker rm nodejs-app || true
             
             # Pull and run new container
-            docker pull mickey761/nodejs-app:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
             docker run -d \
               --name nodejs-app \
               -p 4000:4000 \
-              -e MONGO_URI="mongodb+srv://mikiyasalemayehualemu:mikialem@cluster0.bvlgxqq.mongodb.net/Ato?retryWrites=true&w=majority&appName=Cluster0" \
-            mickey761/nodejs-app:latest
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+            ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:latest
